@@ -72,6 +72,7 @@
                                          <table class="table table-bordered table-striped table-condensed">
                                             <tbody>
                                                 <th align="center">Build</th>
+                                                <th align="center">Package</th>
                                                 <th align="center">Time</th>
                                             </tbody>
                                             
@@ -82,6 +83,9 @@
                                                     <tr>
                                                         <td>
                                                             <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+                                                        </td>
+                                                        <td>
+                                                            <a href="${deployment.get('jobUrl')}">${deployment.get('packageName')}</a>
                                                         </td>
                                                         <td>
                                                             <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
