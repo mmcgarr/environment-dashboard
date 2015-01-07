@@ -62,6 +62,42 @@
                         </j:forEach>
                     </tr>
 
+                    <!-- Popup per Env per Component  -->
+                    <j:forEach items="${it.getOrderOfEnvs()}" var="envsHeader">
+                    <j:set var="limitDeploy" value="${it.getLimitDeployHistory()}"/>
+                            <th style="text-align:center">
+                                <j:forEach items="${it.getOrderOfComps()}" var="comp">
+                                    <div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 800px; height: 500px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+                                        <h3>${comp + "   |   " + envsHeader}</h3>
+                                         <table class="table table-bordered table-striped table-condensed">
+                                            <tbody>
+                                                <th align="center">Build</th>
+                                                <th align="center">Time</th>
+                                            </tbody>
+                                            
+                                            <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
+                                            <j:set var="deployment" value="${it.getCompDeployed(envsHeader,time)}"/>
+                                            
+                                                <j:if test="${deployment.get('compName').equals(comp)}">
+                                                    <tr>
+                                                        <td>
+                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
+                                                        </td>
+                                                        <td>
+                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
+                                                        </td>
+                                                       
+                                                    </tr>
+                                                </j:if>    
+                                            </j:forEach>      
+                                        </table>
+                                    </div>
+                                </j:forEach>
+                            </th>
+                        </j:forEach>
+
+
+                    <!-- Main dashboard -->
                     <j:forEach items="${it.getOrderOfComps()}" var="comps">
                         <tr>
                             <td align="center"><strong>${comps}</strong></td>
@@ -87,8 +123,10 @@
                                     </j:switch>
 
                                     <td class="${clss}" style="background-color:${bgcol}" align="center">
-                                        <a style="text-decoration:none; color:blue; font-size:x-large;" title="View" href="${deployment.get('buildJobUrl')}">
-                                            <strong>${deployment.get('buildNum')}
+                                        <a style="text-decoration:none; color:blue; font-size:x-large;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
+                                            <strong>
+                                                <j:if test="${deployment.get('packageName').equals('')}">${deployment.get('buildNum')}</j:if>
+                                                <j:if test="${!deployment.get('packageName').equals('')}">${deployment.get('packageName')}</j:if>
 												<j:switch on="${deployment.get('buildstatus')}">
 													<j:case value="SUCCESS">
                                                         <span title="SUCCESS" style="color:green;">&#10004;</span>
@@ -138,7 +176,7 @@
                             var divs = document.getElementsByTagName("div");
                             var tableDivs = new Array();
                             for (var i = 0; i &lt; divs.length; i++) {
-                                if (divs[i].id.match("_History") != null) {
+                                if (divs[i].id.match("_History") != null || divs[i].id.match("_Popup")) {
                                     tableDivs.push(divs[i]);
                                 }
                             }
