@@ -3,7 +3,7 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
-<div id="startDashboard" onclick="hideAll()">
+<div id="startDashboard">
     <table id="envDashboard" class="table table-bordered table-striped table-condensed">
         <tbody>
             <j:switch on="${it.anyJobsConfigured()}">
@@ -21,7 +21,8 @@
                         <j:forEach items="${it.getOrderOfEnvs()}" var="envsHeader">
                             <th style="text-align:center">
                                 <a style="text-decoration:none" title="View environment history" id="${envsHeader}_Header" href="javascript:toggle('${envsHeader}_History');">${envsHeader}</a>
-                                <div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 0; bottom: 0; left: 0; right: 0; width: 600px; height: 300px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+                                <div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 800px; height: 500px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+                                    <p align="right" style="cursor: pointer" onclick="javascript:hideAll()"><b>[X]</b></p>
                                     <h3>${envsHeader}</h3>
                                      <table class="table table-bordered table-striped table-condensed">
                                         <tbody>
@@ -62,6 +63,7 @@
                                 <!-- Popup per Env per Component  -->
                                 <j:forEach items="${it.getOrderOfComps()}" var="comp">
                                     <div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 800px; height: 500px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
+                                        <p align="right" style="cursor: pointer" onclick="javascript:hideAll()"><b>[X]</b></p>
                                         <h3>${comp + "   |   " + envsHeader}</h3>
                                          <table class="table table-bordered table-striped table-condensed">
                                             <tbody>
