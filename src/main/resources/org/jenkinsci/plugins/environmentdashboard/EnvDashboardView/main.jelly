@@ -83,7 +83,7 @@
                                                         </td>
                                                         <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
                                                             <td>
-                                                                <a href="${deployment.get('jobUrl')}">${deployment.get('packageName')}</a>
+                                                                ${deployment.get('packageName')}
                                                             </td>
                                                         </j:if>
                                                         <td>
