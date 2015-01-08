@@ -22,7 +22,9 @@
                             <th style="text-align:center">
                                 <a style="text-decoration:none" title="View environment history" id="${envsHeader}_Header" href="javascript:toggle('${envsHeader}_History');">${envsHeader}</a>
                                 <div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 800px; height: 500px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
-                                    <p align="right" style="cursor: pointer" onclick="javascript:hideAll()"><b>[X]</b></p>
+                                    <div align="right">
+                                        <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
+                                    </div>
                                     <h3>${envsHeader}</h3>
                                      <table class="table table-bordered table-striped table-condensed">
                                         <tbody>
@@ -63,7 +65,9 @@
                                 <!-- Popup per Env per Component  -->
                                 <j:forEach items="${it.getOrderOfComps()}" var="comp">
                                     <div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 800px; height: 500px; position:absolute; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
-                                        <p align="right" style="cursor: pointer" onclick="javascript:hideAll()"><b>[X]</b></p>
+                                        <div align="right">
+                                            <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
+                                        </div>
                                         <h3>${comp + "   |   " + envsHeader}</h3>
                                          <table class="table table-bordered table-striped table-condensed">
                                             <tbody>
