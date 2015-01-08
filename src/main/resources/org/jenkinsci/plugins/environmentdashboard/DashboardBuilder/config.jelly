@@ -19,4 +19,17 @@
             <f:textbox />
         </f:entry>
 
+        <f:block>
+            <table>
+                <f:optionalBlock name="dynamic" title="This Job is part of a MultiJob">
+                    <f:entry title="Ignore build unless this Environment Variable has this value:">
+                         <f:textbox name="Name of variable" field="key"/>
+                    </f:entry>
+                    <f:entry title="Has this value:">
+                         <f:textbox name="Value of variable" field="value"/>
+                    </f:entry>
+                </f:optionalBlock>
+            </table>
+        </f:block>
+
 </j:jelly>
