@@ -141,6 +141,12 @@ public class DashboardBuilder extends BuildWrapper {
             returnComment = "WARN: Could not create table env_dashboard.";
             return returnComment;
         }
+        try {
+            stat.execute("ALTER TABLE env_dashboard ADD COLUMN IF NOT EXISTS packageName VARCHAR(255);");
+        } catch (SQLException e) {
+            returnComment = "WARN: Could not alter table env_dashboard.";
+            return returnComment;
+        }
         String indexValueofTable = envName + '=' + compName;
         String currentBuildResult = "UNKNOWN";
         if (build.getResult() == null && runTime.equals("PRE")) {
