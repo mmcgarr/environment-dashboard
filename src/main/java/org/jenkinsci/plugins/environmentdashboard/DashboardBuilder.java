@@ -35,14 +35,18 @@ public class DashboardBuilder extends BuildWrapper {
     private final String buildNumber;
     private final String buildJob;
     private final String packageName;
+    private final String key;
+    private final String value;
 
     @DataBoundConstructor
-    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName) {
+    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName, String key, String value) {
         this.nameOfEnv = nameOfEnv;
         this.componentName = componentName;
         this.buildNumber = buildNumber;
         this.buildJob = buildJob;
         this.packageName = packageName;
+        this.key = key;
+        this.value = value;
     }
 
     public String getNameOfEnv() {
@@ -60,6 +64,12 @@ public class DashboardBuilder extends BuildWrapper {
     public String getPackageName() {
         return packageName;
     }
+    public String getKey() {
+        return key;
+    }
+    public String getValue() {
+        return value;
+    }
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -71,12 +81,21 @@ public class DashboardBuilder extends BuildWrapper {
         String passedCompName = build.getEnvironment(listener).expand(componentName);
         String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
         String passedPackageName = build.getEnvironment(listener).expand(packageName);
+        String passedKey = build.getEnvironment(listener).expand(key);
+        String passedValue = build.getEnvironment(listener).expand(value);
         String returnComment = null;
-        if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
-            returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "PRE", passedBuildJob, numberOfDays, passedPackageName);
-            listener.getLogger().println("Pre-Build Update: " + returnComment);
-        } else {
-            listener.getLogger().println("Environment dashboard not updated: one or more required values were blank");
+
+        if (passedKey != null && build.getEnvironment(listener).expand(passedKey).equals(passedValue)){
+
+            if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
+                returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "PRE", passedBuildJob, numberOfDays, passedPackageName);
+                listener.getLogger().println("Pre-Build Update: " + returnComment);
+            } else {
+                listener.getLogger().println("Environment dashboard not updated: one or more required values were blank");
+            }
+        }
+        else{
+            listener.getLogger().println("Environment dashboard not updated: MultiJob, not deploying into this environment");
         }
         // TearDown - This runs post all build steps
         class TearDownImpl extends Environment {
