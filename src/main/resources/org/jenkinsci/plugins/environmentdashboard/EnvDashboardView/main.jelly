@@ -167,7 +167,7 @@
                                                         </td>
                                                     </j:if>
                                                     <td>
-                                                        <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
+                                                        <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
                                                     </td>
                                                 </tr>
                                             </j:forEach>      
