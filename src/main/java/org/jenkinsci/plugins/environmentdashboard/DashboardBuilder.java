@@ -110,6 +110,8 @@ public class DashboardBuilder extends BuildWrapper {
                 String passedCompName = build.getEnvironment(listener).expand(componentName);
                 String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
                 String passedPackageName = build.getEnvironment(listener).expand(packageName);
+                String passedKey = build.getEnvironment(listener).expand(key);
+                String passedValue = build.getEnvironment(listener).expand(value);
                 String returnComment = null;
                 
                 if (passedPackageName== null){
