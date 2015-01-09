@@ -247,6 +247,32 @@ public class EnvDashboardView extends View {
         return deployment;
     }
 
+    public ArrayList<HashMap<String, String>> getDeploymentsByComp(String comp, Integer lastDeploy) {
+        if ( lastDeploy <= 0 ) {
+            lastDeploy = 10;
+        }
+        ArrayList<HashMap<String, String>> deployments;
+        deployments = new ArrayList<HashMap<String, String>>();
+        HashMap<String, String> hash;
+        String[] fields = {"envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
+        String queryString="select top " + lastDeploy + " " +  StringUtils.join(fields, ", ").replace(".$","") + " from env_dashboard where compName='" + comp + "' order by created_at desc;";
+            try {
+                ResultSet rs = runQuery(queryString);
+                while (rs.next()) {
+                    hash = new HashMap<String, String>();
+                    for (String field : fields) {
+                        hash.put(field, rs.getString(field));
+                    }
+                    deployments.add(hash);
+                }
+                DBConnection.closeConnection();
+            } catch (SQLException e) {
+                System.out.println("E11" + e.getMessage());
+                return null;
+            }
+        return deployments;
+    }
+
     public HashMap getCompLastDeployed(String env, String comp) {
         HashMap<String, String> deployment;
         deployment = new HashMap<String, String>();
