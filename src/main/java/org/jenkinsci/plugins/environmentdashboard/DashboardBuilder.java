@@ -89,7 +89,7 @@ public class DashboardBuilder extends BuildWrapper {
             passedPackageName = "";
         }
 
-        if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && build.getEnvironment(listener).expand(passedKey).equals(passedValue))){
+        if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && passedKey.toLowerCase().contains(build.getEnvironment(listener).expand(passedValue).toLowerCase()))){
 
             if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                 returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "PRE", passedBuildJob, numberOfDays, passedPackageName);
@@ -116,9 +116,11 @@ public class DashboardBuilder extends BuildWrapper {
                     passedPackageName = "";
                 }
 
-                if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
-                    returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "POST", passedBuildJob, numberOfDays, passedPackageName);
-                    listener.getLogger().println("Post-Build Update: " + returnComment);
+                if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && passedKey.toLowerCase().contains(build.getEnvironment(listener).expand(passedValue).toLowerCase()))){
+                    if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
+                        returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "POST", passedBuildJob, numberOfDays, passedPackageName);
+                        listener.getLogger().println("Post-Build Update: " + returnComment);
+                    }
                 }
                 return super.tearDown(build, listener);
             }
