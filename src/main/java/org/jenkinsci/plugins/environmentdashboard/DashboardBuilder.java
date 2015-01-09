@@ -85,7 +85,11 @@ public class DashboardBuilder extends BuildWrapper {
         String passedValue = build.getEnvironment(listener).expand(value);
         String returnComment = null;
 
-        if (passedKey != null && build.getEnvironment(listener).expand(passedKey).equals(passedValue)){
+        if (passedPackageName== null){
+            passedPackageName = "";
+        }
+
+        if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && build.getEnvironment(listener).expand(passedKey).equals(passedValue))){
 
             if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                 returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "PRE", passedBuildJob, numberOfDays, passedPackageName);
@@ -107,6 +111,11 @@ public class DashboardBuilder extends BuildWrapper {
                 String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
                 String passedPackageName = build.getEnvironment(listener).expand(packageName);
                 String returnComment = null;
+                
+                if (passedPackageName== null){
+                    passedPackageName = "";
+                }
+
                 if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                     returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "POST", passedBuildJob, numberOfDays, passedPackageName);
                     listener.getLogger().println("Post-Build Update: " + returnComment);
