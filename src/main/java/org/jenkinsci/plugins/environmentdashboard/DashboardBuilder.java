@@ -104,15 +104,6 @@ public class DashboardBuilder extends BuildWrapper {
                 }
 
                 if (doDeploy.equals("true")){
-                    listener.getLogger().println("doDeploy is true");
-                }else
-                    listener.getLogger().println("doDeploy is false");
-
-
-                listener.getLogger().println("doDeploy: " + doDeploy);
-
-
-                if (doDeploy.equals("true")){
                     if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                         returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "POST", passedBuildJob, numberOfDays, passedPackageName);
                         listener.getLogger().println("Post-Build Update: " + returnComment);

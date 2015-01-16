@@ -79,10 +79,7 @@
                                                 <th align="center">Time</th>
                                             </tbody>
                                             
-                                            <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
-                                            <j:set var="deployment" value="${it.getCompDeployed(envsHeader,time)}"/>
-                                            
-                                                <j:if test="${deployment.get('compName').equals(comp)}">
+                                            <j:forEach items="${it.getDeploymentsByComp(comp, limitDeploy)}" var="deployment">
                                                     <tr>
                                                         <td>
                                                             <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
@@ -109,10 +106,9 @@
                                                             </j:switch>
                                                         </td>
                                                         <td>
-                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
+                                                            <a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(deployment.get('created_at'))}</a>
                                                         </td>
                                                     </tr>
-                                                </j:if>    
                                             </j:forEach>      
                                         </table>
                                     </div>
