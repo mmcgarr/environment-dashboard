@@ -35,18 +35,14 @@ public class DashboardBuilder extends BuildWrapper {
     private final String buildNumber;
     private final String buildJob;
     private final String packageName;
-    private final String key;
-    private final String value;
 
     @DataBoundConstructor
-    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName, String key, String value) {
+    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName) {
         this.nameOfEnv = nameOfEnv;
         this.componentName = componentName;
         this.buildNumber = buildNumber;
         this.buildJob = buildJob;
         this.packageName = packageName;
-        this.key = key;
-        this.value = value;
     }
 
     public String getNameOfEnv() {
@@ -64,12 +60,6 @@ public class DashboardBuilder extends BuildWrapper {
     public String getPackageName() {
         return packageName;
     }
-    public String getKey() {
-        return key;
-    }
-    public String getValue() {
-        return value;
-    }
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -81,15 +71,12 @@ public class DashboardBuilder extends BuildWrapper {
         String passedCompName = build.getEnvironment(listener).expand(componentName);
         String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
         String passedPackageName = build.getEnvironment(listener).expand(packageName);
-        String passedKey = build.getEnvironment(listener).expand(key);
-        String passedValue = build.getEnvironment(listener).expand(value);
         String returnComment = null;
 
         if (passedPackageName== null){
             passedPackageName = "";
         }
 
-        if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && passedKey.toLowerCase().contains(build.getEnvironment(listener).expand(passedValue).toLowerCase()))){
 
             if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                 returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "PRE", passedBuildJob, numberOfDays, passedPackageName);
@@ -97,10 +84,6 @@ public class DashboardBuilder extends BuildWrapper {
             } else {
                 listener.getLogger().println("Environment dashboard not updated: one or more required values were blank");
             }
-        }
-        else{
-            listener.getLogger().println("Environment dashboard not updated: MultiJob, not deploying into this environment");
-        }
         // TearDown - This runs post all build steps
         class TearDownImpl extends Environment {
             @Override
@@ -110,20 +93,38 @@ public class DashboardBuilder extends BuildWrapper {
                 String passedCompName = build.getEnvironment(listener).expand(componentName);
                 String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
                 String passedPackageName = build.getEnvironment(listener).expand(packageName);
-                String passedKey = build.getEnvironment(listener).expand(key);
-                String passedValue = build.getEnvironment(listener).expand(value);
+                String doDeploy = build.getEnvironment(listener).expand("$UPDATE_ENV_DASH");
                 String returnComment = null;
                 
                 if (passedPackageName== null){
                     passedPackageName = "";
                 }
+                if (doDeploy == null || (!doDeploy.equals("true") && !doDeploy.equals("false"))){
+                    doDeploy = "true";
+                }
 
-                if ((passedKey == null ||  passedKey.equals("")) || (passedKey != null && passedKey.toLowerCase().contains(build.getEnvironment(listener).expand(passedValue).toLowerCase()))){
+                if (doDeploy.equals("true")){
+                    listener.getLogger().println("doDeploy is true");
+                }else
+                    listener.getLogger().println("doDeploy is false");
+
+
+                listener.getLogger().println("doDeploy: " + doDeploy);
+
+
+                if (doDeploy.equals("true")){
                     if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
                         returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "POST", passedBuildJob, numberOfDays, passedPackageName);
                         listener.getLogger().println("Post-Build Update: " + returnComment);
                     }
+                }else{
+                    if (!(passedBuildNumber.matches("^\\s*$") || passedEnvName.matches("^\\s*$") || passedCompName.matches("^\\s*$"))) {
+                        returnComment = writeToDB(build, listener, passedEnvName, passedCompName, passedBuildNumber, "NODEPLOY", passedBuildJob, numberOfDays, passedPackageName);
+                        listener.getLogger().println("Post-Build Update: " + returnComment);
+                    }
+                    
                 }
+
                 return super.tearDown(build, listener);
             }
         }
@@ -166,7 +167,9 @@ public class DashboardBuilder extends BuildWrapper {
             currentBuildResult = "RUNNING";
         } else if (build.getResult() == null && runTime.equals("POST")) {
             currentBuildResult = "SUCCESS";
-        }  else {
+        } else if (runTime.equals("NODEPLOY")){
+            currentBuildResult = "NODEPLOY";   
+        }else {
             currentBuildResult = build.getResult().toString();
         }
         String currentBuildUrl = build.getUrl();
@@ -184,13 +187,17 @@ public class DashboardBuilder extends BuildWrapper {
             runQuery = "INSERT INTO env_dashboard VALUES( '" + indexValueofTable + "', '" + currentBuildUrl + "', '" + currentBuildNum + "', '" + currentBuildResult + "', '" + envName + "', '" + compName + "' , + current_timestamp, '" + buildJobUrl + "' , '" + packageName + "');";
         } else {
             if (runTime.equals("POST")) {
-                runQuery = "UPDATE env_dashboard SET buildStatus = '" + currentBuildResult + "', created_at = current_timestamp WHERE envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "'";
+                runQuery = "UPDATE env_dashboard SET buildStatus = '" + currentBuildResult + "', created_at = current_timestamp WHERE envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";
+            }else {
+                if (runTime.equals("NODEPLOY")){
+                    runQuery = "DELETE FROM env_dashboard where envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";
+                }
             }
         }
         try {
             stat.execute(runQuery);
         } catch (SQLException e) {
-            returnComment = "Error running insert query " + runQuery + ".";
+            returnComment = "Error running query " + runQuery + ".";
             return returnComment;
         }
         if ( numberOfDays > 0 ) {
