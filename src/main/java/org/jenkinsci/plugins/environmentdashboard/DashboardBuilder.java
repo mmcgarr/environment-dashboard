@@ -14,6 +14,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.ServletException;
 
 import net.sf.json.JSONObject;
@@ -35,14 +38,17 @@ public class DashboardBuilder extends BuildWrapper {
     private final String buildNumber;
     private final String buildJob;
     private final String packageName;
+    private List<ListItem> data = Collections.emptyList();
 
     @DataBoundConstructor
-    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName) {
+    public DashboardBuilder(String nameOfEnv, String componentName, String buildNumber, String buildJob, String packageName, List<ListItem> data) {
         this.nameOfEnv = nameOfEnv;
         this.componentName = componentName;
         this.buildNumber = buildNumber;
         this.buildJob = buildJob;
         this.packageName = packageName;
+        if (data != null)
+            this.data = data;
     }
 
     public String getNameOfEnv() {
@@ -59,6 +65,9 @@ public class DashboardBuilder extends BuildWrapper {
     }
     public String getPackageName() {
         return packageName;
+    }
+    public List<ListItem> getData() {
+        return data;
     }
 
     @SuppressWarnings("rawtypes")
