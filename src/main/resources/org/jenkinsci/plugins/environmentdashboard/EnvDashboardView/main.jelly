@@ -75,6 +75,11 @@
                                                 <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
                                                     <th align="center">Package</th>
                                                 </j:if>
+                                                <j:forEach items="${it.getCustomDBColumns()}" var="column">
+                                                    <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()).equals('') &amp;&amp; it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                        <th align="center">${column}</th>
+                                                    </j:if>
+                                                </j:forEach>
                                                 <th align="center">Status</th>
                                                 <th align="center">Time</th>
                                             </tbody>
@@ -89,6 +94,13 @@
                                                                 ${deployment.get('packageName')}
                                                             </td>
                                                         </j:if>
+                                                        <j:forEach items="${it.getCustomDBColumns()}" var="column">
+                                                            <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()).equals('') &amp;&amp; it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                                <td>
+                                                                    ${deployment.get(column.toLowerCase())}
+                                                                </td>
+                                                            </j:if>
+                                                        </j:forEach>
                                                         <td>
                                                             <j:switch on="${deployment.get('buildstatus')}">
                                                                 <j:case value="SUCCESS">
