@@ -90,7 +90,14 @@ public class DashboardBuilder extends BuildWrapper {
         String passedBuildJob = build.getEnvironment(listener).expand(buildJob);
         String passedPackageName = build.getEnvironment(listener).expand(packageName);
         List<ListItem> passedColumnData = new ArrayList<ListItem>();
-        passedColumnData.add(new ListItem("HotCold", "Cold"));
+        for (ListItem item : data){
+            passedColumnData.add(
+                    new ListItem(
+                        build.getEnvironment(listener).expand(item.columnName),
+                        build.getEnvironment(listener).expand(item.contents)
+                        )
+                    );
+        }
         String returnComment = null;
 
         if (passedPackageName== null){
