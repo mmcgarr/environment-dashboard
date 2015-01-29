@@ -1,6 +1,9 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 
+    <style>
+        #envDashboard {border:1px solid black;}
+    </style>
     <f:entry title="Environment order" field="envOrder">
         <f:textbox />
     </f:entry>
@@ -11,6 +14,22 @@
 
     <f:entry title="Limit deploy history to last X deploys" field="deployHistory">
         <f:textbox default="10"/>
+    </f:entry>
+
+    <f:entry title="Custom DB columns">
+        <table id="envDashboard" class="table table-bordered table-striped table-condensed" >
+            <tr><th>Column Name</th></tr>
+            <j:forEach items="${it.getCustomDBColumns()}" var="column">
+                <tr>
+                    <td style="border:1px solid black">${column}</td>
+                    <td>
+                        <f:validateButton
+                           title="${%Drop Column}" progress="${%In progress...}"
+                           method="dropColumn" with="${column}" />
+                   </td>
+                </tr>
+            </j:forEach>
+        </table>
     </f:entry>
 
 </j:jelly>
