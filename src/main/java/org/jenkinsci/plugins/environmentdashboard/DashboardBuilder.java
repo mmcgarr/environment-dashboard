@@ -175,7 +175,7 @@ public class DashboardBuilder extends BuildWrapper {
 
         String runQuery = null;
         if (runTime.equals("PRE")) {
-            runQuery = "INSERT INTO env_dashboard VALUES( '" + indexValueofTable + "', '" + currentBuildUrl + "', '" + currentBuildNum + "', '" + currentBuildResult + "', '" + envName + "', '" + compName + "' , + current_timestamp, '" + buildJobUrl + "' , '" + packageName + "');";
+            runQuery = "INSERT INTO env_dashboard (envComp, jobUrl, buildNum, buildStatus, envName, compName, created_at, buildJobUrl, packageName) VALUES( '" + indexValueofTable + "', '" + currentBuildUrl + "', '" + currentBuildNum + "', '" + currentBuildResult + "', '" + envName + "', '" + compName + "' , + current_timestamp, '" + buildJobUrl + "' , '" + packageName + "');";
         } else {
             if (runTime.equals("POST")) {
                 runQuery = "UPDATE env_dashboard SET buildStatus = '" + currentBuildResult + "', created_at = current_timestamp WHERE envComp = '" + indexValueofTable +"' AND joburl = '" + currentBuildUrl + "';";

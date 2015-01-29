@@ -277,7 +277,6 @@ public class EnvDashboardView extends View {
         if ( lastDeploy <= 0 ) {
             lastDeploy = 10;
         }
-        System.out.println("E1341234875628345: Running correct function");
         ArrayList<HashMap<String, String>> deployments;
         deployments = new ArrayList<HashMap<String, String>>();
         HashMap<String, String> hash;
