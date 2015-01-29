@@ -79,7 +79,7 @@
                                                 <th align="center">Time</th>
                                             </tbody>
                                             
-                                            <j:forEach items="${it.getDeploymentsByComp(comp, limitDeploy)}" var="deployment">
+                                            <j:forEach items="${it.getDeploymentsByCompEnv(comp, envsHeader, limitDeploy)}" var="deployment">
                                                     <tr>
                                                         <td>
                                                             <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
