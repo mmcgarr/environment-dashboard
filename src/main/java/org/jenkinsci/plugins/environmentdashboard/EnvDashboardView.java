@@ -7,6 +7,7 @@ import hudson.model.Descriptor.FormException;
 import hudson.model.Hudson;
 import hudson.model.View;
 import hudson.model.ViewDescriptor;
+import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -133,6 +134,29 @@ public class EnvDashboardView extends View {
             System.out.println("E4" + e.getMessage());
         }
         return rs;
+    }
+
+    public boolean executeStatement(String queryString) {
+
+        
+        //Get DB connection
+        conn = DBConnection.getConnection();
+        
+        try {
+            assert conn != null;
+            stat = conn.createStatement();
+        } catch (SQLException e) {
+            System.out.println("E15" + e.getMessage());
+            return false;
+        }
+        try {
+            assert stat != null;
+            stat.execute(queryString);
+        } catch (SQLException e) {
+            System.out.println("E14" + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     public ArrayList<String> getOrderOfEnvs() {
@@ -371,6 +395,16 @@ public class EnvDashboardView extends View {
     @Override
     public void onJobRenamed(Item item, String s, String s2) {
 
+    }
+
+    public FormValidation doDropColumn(String columnName){
+        String queryString = "ALTER TABLE ENV_DASHBOARD DROP COLUMN IF EXISTS " + columnName + ";";
+        boolean success = executeStatement(queryString);
+        DBConnection.closeConnection();
+        if (!success){
+            return FormValidation.error("Failed to drop column");
+        }
+        return FormValidation.ok("Success");
     }
 
 }
