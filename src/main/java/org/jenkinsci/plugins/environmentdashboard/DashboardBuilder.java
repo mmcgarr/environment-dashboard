@@ -191,7 +191,7 @@ public class DashboardBuilder extends BuildWrapper {
             columns = columns + ", " +  item.columnName;
             contents = contents + "', '" + item.contents;
             try {
-                stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS " + item.columnName + " VARCHAR(255);");
+                stat.execute("ALTER TABLE env_dashboard ADD IF NOT EXISTS " + item.columnName + " VARCHAR;");
             } catch (SQLException e) {
                 returnComment = "WARN: Could not alter table env_dashboard to add column " + item.columnName + ".";
                 return returnComment;
