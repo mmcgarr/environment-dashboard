@@ -16,20 +16,19 @@
         <f:textbox default="10"/>
     </f:entry>
 
-    <f:entry title="Custom DB columns">
-        <table id="envDashboard" class="table table-bordered table-striped table-condensed" >
-            <tr><th>Column Name</th></tr>
-            <j:forEach items="${it.getCustomDBColumns()}" var="column">
-                <tr>
-                    <td style="border:1px solid black">${column}</td>
-                    <td>
-                        <f:validateButton
-                           title="${%Drop Column}" progress="${%In progress...}"
-                           method="dropColumn" with="${column}" />
-                   </td>
-                </tr>
-            </j:forEach>
-        </table>
+    <f:entry>
+        <table>
+            <f:dropdownList name="Columns" title="Custom Columns">
+                <j:forEach var="col" items="${it.getCustomDBColumns()}" varStatus="loop">
+                        <f:dropdownListBlock title="${col}" value="${loop.index}" selected="false">
+                            <div style="display: none;">
+                                <f:textbox field="columnToDrop" default="${col}" title="column to drop"/>
+                            </div>
+                            <f:validateButton title="${%Drop column}" progress="${%Processing...}"
+                                method="dropColumn" with="columnToDrop" />
+                        </f:dropdownListBlock>
+                </j:forEach>
+            </f:dropdownList>
+        </table> 
     </f:entry>
-
 </j:jelly>
