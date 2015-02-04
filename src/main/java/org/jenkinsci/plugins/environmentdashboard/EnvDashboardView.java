@@ -144,9 +144,9 @@ public class EnvDashboardView extends View {
             ListBoxModel m = new ListBoxModel();
             ArrayList<String> columns = getCustomColumns();
             int position = 0;
+            m.add("Select column to remove", "");
             for (String col : columns){
                 m.add(col, col);
-                position++;
             }
             return m;
         }
