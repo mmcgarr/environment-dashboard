@@ -8,6 +8,7 @@ import hudson.model.Hudson;
 import hudson.model.View;
 import hudson.model.ViewDescriptor;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -28,6 +29,7 @@ import org.jenkinsci.plugins.environmentdashboard.utils.DBConnection;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Class to provide build wrapper for Dashboard.
@@ -66,14 +68,23 @@ public class EnvDashboardView extends View {
         private String envOrder;
         private String compOrder;
         private String deployHistory;
+        private Connection conn = null;
+        private Statement stat = null;
+//        private ArrayList<String> customColumns;
+        public String columnSelected;        
 
         /**
          * descriptor impl constructor This empty constructor is required for stapler. If you remove this constructor, text name of
          * "Build Pipeline View" will be not displayed in the "NewView" page
          */
         public DescriptorImpl() {
+//            customColumns = getCustomDBColumns();
             load();
         }
+
+//        public ArrayList<String> getCustomColumns(){
+//            return customColumns;
+//        }
 
         /**
          * get the display name
@@ -83,6 +94,87 @@ public class EnvDashboardView extends View {
         @Override
         public String getDisplayName() {
             return "Environment Dashboard";
+        }
+
+        public ArrayList<String> getCustomColumns(){
+            ArrayList<String> columns;
+            columns = new ArrayList<String>();
+            String queryString="SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='ENV_DASHBOARD';";
+            String[] fields = {"envComp", "compName", "envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
+            boolean columnFound = false;
+            try {
+                ResultSet rs = null;
+                conn = DBConnection.getConnection();
+
+                try {
+                    assert conn != null;
+                    stat = conn.createStatement();
+                } catch (SQLException e) {
+                    System.out.println("E3" + e.getMessage());
+                }
+                try {
+                    assert stat != null;
+                    rs = stat.executeQuery(queryString);
+                } catch (SQLException e) {
+                    System.out.println("E4" + e.getMessage());
+                }
+                String col = "";
+                while (rs.next()) {
+                    columnFound=false;
+                    col = rs.getString("COLUMN_NAME");
+                    for (String presetColumn : fields){
+                        if (col.toLowerCase().equals(presetColumn.toLowerCase())){
+                            columnFound = true;
+                            break;
+                        }
+                    }
+                    if (!columnFound){
+                        columns.add(col.toLowerCase());
+                    }
+                }
+                DBConnection.closeConnection();
+            } catch (SQLException e) {
+                System.out.println("E11" + e.getMessage());
+                return null;
+            }
+            return columns;
+        }
+
+        public ListBoxModel doFillColumnItems() {
+            ListBoxModel m = new ListBoxModel();
+            ArrayList<String> columns = getCustomColumns();
+            int position = 0;
+            for (String col : columns){
+                m.add(col, col);
+                position++;
+            }
+            return m;
+        }
+
+        public FormValidation doDropColumn(@QueryParameter("column") final String Columns){
+            if ("".equals(Columns)){
+                return FormValidation.ok("");
+            }
+            String queryString = "ALTER TABLE ENV_DASHBOARD DROP COLUMN " + Columns + ";";
+            //Get DB connection
+            conn = DBConnection.getConnection();
+
+            try {
+                assert conn != null;
+                stat = conn.createStatement();
+            } catch (SQLException e) {
+                return FormValidation.error("Error removing column: " + Columns + "\n"+ e.getMessage());
+            }
+            try {
+                assert stat != null;
+                stat.execute(queryString);
+            } catch (SQLException e) {
+                DBConnection.closeConnection();
+                return FormValidation.error("Unable to remove column: " + Columns + "\nIt is possible the column has been removed since the drop down was last loaded. \nTry refreshing the page to ensure you have an up to date list.");
+            } 
+            DBConnection.closeConnection();
+
+            return FormValidation.ok("Successfully removed column: " + Columns );
         }
 
         @Override
@@ -134,29 +226,6 @@ public class EnvDashboardView extends View {
             System.out.println("E4" + e.getMessage());
         }
         return rs;
-    }
-
-    public boolean executeStatement(String queryString) {
-
-        
-        //Get DB connection
-        conn = DBConnection.getConnection();
-        
-        try {
-            assert conn != null;
-            stat = conn.createStatement();
-        } catch (SQLException e) {
-            System.out.println("E15" + e.getMessage());
-            return false;
-        }
-        try {
-            assert stat != null;
-            stat.execute(queryString);
-        } catch (SQLException e) {
-            System.out.println("E14" + e.getMessage());
-            return false;
-        }
-        return true;
     }
 
     public ArrayList<String> getOrderOfEnvs() {
@@ -339,12 +408,16 @@ public class EnvDashboardView extends View {
         deployments = new ArrayList<HashMap<String, String>>();
         HashMap<String, String> hash;
         String[] fields = {"envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
-        String queryString="select top " + lastDeploy + " " +  StringUtils.join(fields, ", ").replace(".$","") + " from env_dashboard where compName='" + comp + "' and envName='" + env + "' order by created_at desc;";
+        ArrayList<String> allDBFields = getCustomDBColumns();
+        for (String field : fields ){
+            allDBFields.add(field);
+        }
+        String queryString="select top " + lastDeploy + " " +  StringUtils.join(allDBFields, ", ").replace(".$","") + " from env_dashboard where compName='" + comp + "' and envName='" + env + "' order by created_at desc;";
             try {
                 ResultSet rs = runQuery(queryString);
                 while (rs.next()) {
                     hash = new HashMap<String, String>();
-                    for (String field : fields) {
+                    for (String field : allDBFields) {
                         hash.put(field, rs.getString(field));
                     }
                     deployments.add(hash);
@@ -423,14 +496,5 @@ public class EnvDashboardView extends View {
 
     }
 
-    public FormValidation doDropColumn(String columnName){
-        String queryString = "ALTER TABLE ENV_DASHBOARD DROP COLUMN IF EXISTS " + columnName + ";";
-        boolean success = executeStatement(queryString);
-        DBConnection.closeConnection();
-        if (!success){
-            return FormValidation.error("Failed to drop column");
-        }
-        return FormValidation.ok("Success");
-    }
 
 }

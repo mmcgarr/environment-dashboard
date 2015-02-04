@@ -16,19 +16,12 @@
         <f:textbox default="10"/>
     </f:entry>
 
-    <f:entry>
-        <table>
-            <f:dropdownList name="Columns" title="Custom Columns">
-                <j:forEach var="col" items="${it.getCustomDBColumns()}" varStatus="loop">
-                        <f:dropdownListBlock title="${col}" value="${loop.index}" selected="false">
-                            <div style="display: none;">
-                                <f:textbox field="columnToDrop" default="${col}" title="column to drop"/>
-                            </div>
-                            <f:validateButton title="${%Drop column}" progress="${%Processing...}"
-                                method="dropColumn" with="columnToDrop" />
-                        </f:dropdownListBlock>
-                </j:forEach>
-            </f:dropdownList>
-        </table> 
+    <f:entry title="Custom Columns" field="column" >
+        <f:select id="selectColumn" onclick="updateListBox('selectColumn', '/descriptorByName/org.jenkinsci.plugins.environmentdashboard.EnvDashboardView/fillColumnItems')" />
+    </f:entry>
+
+    <f:entry >
+        <f:validateButton title="${%Drop column}" progress="${%Processing...}" 
+            method="dropColumn" with="column" />
     </f:entry>
 </j:jelly>
