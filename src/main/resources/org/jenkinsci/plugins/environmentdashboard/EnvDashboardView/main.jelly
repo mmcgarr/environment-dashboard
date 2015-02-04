@@ -76,7 +76,7 @@
                                                     <th align="center">Package</th>
                                                 </j:if>
                                                 <j:forEach items="${it.getCustomDBColumns()}" var="column">
-                                                    <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()).equals('') &amp;&amp; it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                    <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
                                                         <th align="center">${column}</th>
                                                     </j:if>
                                                 </j:forEach>
@@ -95,7 +95,7 @@
                                                             </td>
                                                         </j:if>
                                                         <j:forEach items="${it.getCustomDBColumns()}" var="column">
-                                                            <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()).equals('') &amp;&amp; it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                            <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
                                                                 <td>
                                                                     ${deployment.get(column.toLowerCase())}
                                                                 </td>
