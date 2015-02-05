@@ -69,7 +69,7 @@
                                             <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
                                         </div>
                                         <h3>${comp + "   |   " + envsHeader}</h3>
-                                         <table style="table-layout: fixed" class="table table-bordered table-striped table-condensed">
+                                         <table style="width=100%" class="table table-bordered table-striped table-condensed">
                                             <tbody>
                                                 <th style="width: 8%" align="center">Build</th>
                                                 <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
@@ -77,7 +77,7 @@
                                                 </j:if>
                                                 <j:forEach items="${it.getCustomDBColumns()}" var="column">
                                                     <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
-                                                        <th align="center" style="maxwidth: 50%;">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
+                                                        <th align="center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
                                                     </j:if>
                                                 </j:forEach>
                                                 <th align="center" style="width:8%">Status</th>
@@ -96,7 +96,7 @@
                                                         </j:if>
                                                         <j:forEach items="${it.getCustomDBColumns()}" var="column">
                                                             <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
-                                                                <td style="width: 50%; word-wrap:break-word">
+                                                                <td style="max-width:20em;word-wrap:break-word">
                                                                     ${deployment.get(column.toLowerCase())}
                                                                 </td>
                                                             </j:if>
