@@ -3,6 +3,9 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
+<div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.7); position:absolute; top: 0; left:0; bottom:0; right:0;"></div>
+<div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <div id="startDashboard">
     <table id="envDashboard" class="table table-bordered table-striped table-condensed">
         <tbody>
@@ -196,12 +199,12 @@
                                 <j:if test="${!deployment.isEmpty()}">
                                     <j:switch on="${deployment.get('buildstatus')}">
                                         <j:case value="SUCCESS">
-                                            <j:set var="bgcol" value="#33C633;"/>
+                                            <j:set var="bgcol" value="#DAF5DA;"/>
                                             <j:set var="clss" value="notused"/>
                                             <j:set var="extn" value=""/>
                                         </j:case>
                                         <j:case value="FAILURE">
-                                            <j:set var="bgcol" value="#e74c3c;"/>
+                                            <j:set var="bgcol" value="#FF6666;"/>
                                             <j:set var="clss" value="notused"/>
                                             <j:set var="extn" value=""/>
                                         </j:case>
@@ -212,14 +215,14 @@
                                         </j:case>
                                     </j:switch>
 
-                                    <td class="${clss}" style="background-color:${bgcol}" align="center">
-                                        <a style="text-decoration:none; color:blue; font-size:x-large;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
+                                    <td class="${clss}" style="background-color:${bgcol} padding 1.5% 1.5%;" align="center">
+                                        <a style="text-decoration:none; color:blue; font-size:medium;" title="View" href="javascript:toggle('${comps}_${env}_Popup');">
                                             <strong>
                                                 <j:if test="${deployment.get('packageName').equals('')}">${deployment.get('buildNum')}</j:if>
                                                 <j:if test="${!deployment.get('packageName').equals('')}">${deployment.get('packageName')}</j:if>
 												<j:switch on="${deployment.get('buildstatus')}">
 													<j:case value="SUCCESS">
-                                                        <span title="SUCCESS" style="color:green;">&#10004;</span>
+                                                        <span title="SUCCESS" style="color:green;"></span>
 													</j:case>
 													<j:case value="FAILURE">
                                                         <span title="FAILURE" style="color:darkred;">&#x2716;</span>
@@ -262,11 +265,11 @@
                         }
 
                         function hideAll() {
-
+                            $(".overlay, .popup").fadeToggle();
                             var divs = document.getElementsByTagName("div");
                             var tableDivs = new Array();
                             for (var i = 0; i &lt; divs.length; i++) {
-                                if (divs[i].id.match("_History") != null || divs[i].id.match("_Popup")) {
+                                if (divs[i].id.match("_History") != null || divs[i].id.match("_Popup") || divs[i].id.match("pop")) {
                                     tableDivs.push(divs[i]);
                                 }
                             }
@@ -280,6 +283,8 @@
                             }
 
                         }
+                        var table = document.getElementById("main-panel");
+                        table.width = "100%";
                     </script>
                 </j:case>
             </j:switch>
