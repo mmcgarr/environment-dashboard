@@ -3,7 +3,7 @@
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
 <link href="${rootURL}/plugin/environment-dashboard/css/blink.css" type="text/css" rel="stylesheet"/>
-<div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.7); position:absolute; top: 0; left:0; bottom:0; right:0;"></div>
+<div class="overlay" style="display:none; background-color: rgba(0, 0, 0, 0.4); position:absolute; top: 0; left:0; bottom:0; right:0;" onclick="hideAll()"></div>
 <div class="popup" id="popup" style="position: absolute; width: 300px; height:150; display:none; background-color: white; text-align: center; top:50%; left:50%; margin-left: -150px; margin-top: -75;"></div>
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
 <div id="startDashboard">
@@ -30,12 +30,22 @@
                                     </div>
                                     <h3>${envsHeader}</h3>
                                      <table class="table table-bordered table-striped table-condensed">
+                                        <j:set var="limitDeploy" value="${it.getLimitDeployHistory()}"/>
                                         <tbody>
                                             <th align="center">Component</th>
                                             <th align="center">Build</th>
+
+                                            <j:set var="hasPackageColumn" value="${false}"/>
+                                            <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
+                                                <j:if test="${it.getCompDeployed(envsHeader,time).get('packageName') != null &amp;&amp; !it.getCompDeployed(envsHeader,time).get('packageName').equals('')}">
+                                                    <j:set var="hasPackageColumn" value="${true}"/>
+                                                </j:if>
+                                            </j:forEach>
+                                            <j:if test="${hasPackageColumn}">
+                                                <th align="center">Package</th>
+                                            </j:if> 
                                             <th align="center">Last Update</th>
                                         </tbody>
-                                        <j:set var="limitDeploy" value="${it.getLimitDeployHistory()}"/>
                                         <j:forEach items="${it.getDeployments(envsHeader, limitDeploy)}" var="time">
                                         <j:set var="deployment" value="${it.getCompDeployed(envsHeader,time)}"/>
                                             <tr>
@@ -57,6 +67,11 @@
 														</j:default>
 													</j:switch>
 												</td>
+                                                <j:if test="${hasPackageColumn}">
+                                                    <td>
+                                                        ${deployment.get("packageName")}
+                                                    </td>
+                                                </j:if>
 												<td>
 													<a title="View Deployment" href="${deployment.get('jobUrl')}">${it.getNiceTimeStamp(time)}</a>
 												</td>
