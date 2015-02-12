@@ -23,6 +23,7 @@
                         <th/>
                         <j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
                         <j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
+                        <j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
 
                         <j:forEach items="${orderOfEnvs}" var="envsHeader">
                             <th style="text-align:center">
@@ -83,7 +84,6 @@
                                     </table>
                                 </div>
 
-                                <j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
                                 <!-- Popup per Env per Component  -->
                                 <j:forEach items="${orderOfComps}" var="comp">
                                     <j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
