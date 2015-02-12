@@ -68,9 +68,6 @@ public class EnvDashboardView extends View {
         private String envOrder;
         private String compOrder;
         private String deployHistory;
-        private Connection conn = null;
-        private Statement stat = null;
-//        private ArrayList<String> customColumns;
         public String columnSelected;        
 
         /**
@@ -78,13 +75,9 @@ public class EnvDashboardView extends View {
          * "Build Pipeline View" will be not displayed in the "NewView" page
          */
         public DescriptorImpl() {
-//            customColumns = getCustomDBColumns();
             load();
         }
 
-//        public ArrayList<String> getCustomColumns(){
-//            return customColumns;
-//        }
 
         /**
          * get the display name
@@ -94,87 +87,6 @@ public class EnvDashboardView extends View {
         @Override
         public String getDisplayName() {
             return "Environment Dashboard";
-        }
-
-        public ArrayList<String> getCustomColumns(){
-            ArrayList<String> columns;
-            columns = new ArrayList<String>();
-            String queryString="SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='ENV_DASHBOARD';";
-            String[] fields = {"envComp", "compName", "envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
-            boolean columnFound = false;
-            try {
-                ResultSet rs = null;
-                conn = DBConnection.getConnection();
-
-                try {
-                    assert conn != null;
-                    stat = conn.createStatement();
-                } catch (SQLException e) {
-                    System.out.println("E3" + e.getMessage());
-                }
-                try {
-                    assert stat != null;
-                    rs = stat.executeQuery(queryString);
-                } catch (SQLException e) {
-                    System.out.println("E4" + e.getMessage());
-                }
-                String col = "";
-                while (rs.next()) {
-                    columnFound=false;
-                    col = rs.getString("COLUMN_NAME");
-                    for (String presetColumn : fields){
-                        if (col.toLowerCase().equals(presetColumn.toLowerCase())){
-                            columnFound = true;
-                            break;
-                        }
-                    }
-                    if (!columnFound){
-                        columns.add(col.toLowerCase());
-                    }
-                }
-                DBConnection.closeConnection();
-            } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
-                return null;
-            }
-            return columns;
-        }
-
-        public ListBoxModel doFillColumnItems() {
-            ListBoxModel m = new ListBoxModel();
-            ArrayList<String> columns = getCustomColumns();
-            int position = 0;
-            m.add("Select column to remove", "");
-            for (String col : columns){
-                m.add(col, col);
-            }
-            return m;
-        }
-
-        public FormValidation doDropColumn(@QueryParameter("column") final String Columns){
-            if ("".equals(Columns)){
-                return FormValidation.ok("");
-            }
-            String queryString = "ALTER TABLE ENV_DASHBOARD DROP COLUMN " + Columns + ";";
-            //Get DB connection
-            conn = DBConnection.getConnection();
-
-            try {
-                assert conn != null;
-                stat = conn.createStatement();
-            } catch (SQLException e) {
-                return FormValidation.error("Error removing column: " + Columns + "\n"+ e.getMessage());
-            }
-            try {
-                assert stat != null;
-                stat.execute(queryString);
-            } catch (SQLException e) {
-                DBConnection.closeConnection();
-                return FormValidation.error("Unable to remove column: " + Columns + "\nIt is possible the column has been removed since the drop down was last loaded. \nTry refreshing the page to ensure you have an up to date list.");
-            } 
-            DBConnection.closeConnection();
-
-            return FormValidation.ok("Successfully removed column: " + Columns );
         }
 
         @Override
@@ -187,8 +99,6 @@ public class EnvDashboardView extends View {
         }
     }
 
-    Connection conn = null;
-    Statement stat = null;
 
     public ArrayList<String> splitEnvOrder(String envOrder) {
         ArrayList<String> orderOfEnvs = new ArrayList<String>();
@@ -207,6 +117,8 @@ public class EnvDashboardView extends View {
     }
 
     public ResultSet runQuery(String queryString) {
+        Connection conn = null;
+        Statement stat = null;
 
         ResultSet rs = null;
         
