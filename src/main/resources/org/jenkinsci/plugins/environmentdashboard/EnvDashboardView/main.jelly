@@ -21,7 +21,10 @@
                 <j:case value="ENVS">
                     <tr align="center">
                         <th/>
-                        <j:forEach items="${it.getOrderOfEnvs()}" var="envsHeader">
+                        <j:set var="orderOfEnvs" value="${it.getOrderOfEnvs()}"/>
+                        <j:set var="orderOfComps" value="${it.getOrderOfComps()}"/>
+
+                        <j:forEach items="${orderOfEnvs}" var="envsHeader">
                             <th style="text-align:center">
                                 <a style="text-decoration:none" title="View environment history" id="${envsHeader}_Header" href="javascript:toggle('${envsHeader}_History');">${envsHeader}</a>
                                 <div id="${envsHeader}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
@@ -80,8 +83,10 @@
                                     </table>
                                 </div>
 
+                                <j:set var="customColumnsList" value="${it.getCustomDBColumns()}"/>
                                 <!-- Popup per Env per Component  -->
-                                <j:forEach items="${it.getOrderOfComps()}" var="comp">
+                                <j:forEach items="${orderOfComps}" var="comp">
+                                    <j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
                                     <div id="${comp}_${envsHeader}_Popup" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
                                         <div align="right">
                                             <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
@@ -90,11 +95,11 @@
                                          <table style="width=100%" class="table table-bordered table-striped table-condensed">
                                             <tbody>
                                                 <th style="width: 8%" align="center">Build</th>
-                                                <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
+                                                <j:if test="${!compLastDeployed.get('packageName').equals('')}">
                                                     <th align="center">Package</th>
                                                 </j:if>
-                                                <j:forEach items="${it.getCustomDBColumns()}" var="column">
-                                                    <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                <j:forEach items="${customColumnsList}" var="column">
+                                                    <j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
                                                         <th align="center">${column.substring(0, 1).toUpperCase() + column.substring(1)}</th>
                                                     </j:if>
                                                 </j:forEach>
@@ -107,13 +112,13 @@
                                                         <td >
                                                             <a title="View Deployment" href="${deployment.get('jobUrl')}">${deployment.get('buildNum')}</a>
                                                         </td>
-                                                        <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
+                                                        <j:if test="${!compLastDeployed.get('packageName').equals('')}">
                                                             <td style="word-wrap:break-word">
                                                                 ${deployment.get('packageName')}
                                                             </td>
                                                         </j:if>
-                                                        <j:forEach items="${it.getCustomDBColumns()}" var="column">
-                                                            <j:if test="${it.getCompLastDeployed(envsHeader, comp).get(column.toLowerCase()) != null}">
+                                                        <j:forEach items="${customColumnsList}" var="column">
+                                                            <j:if test="${compLastDeployed.get(column.toLowerCase()) != null}">
                                                                 <td style="max-width:20em;word-wrap:break-word">
                                                                     ${deployment.get(column.toLowerCase())}
                                                                 </td>
@@ -146,7 +151,8 @@
 
 
                                 <!-- Component History -->
-                                <j:forEach items="${it.getOrderOfComps()}" var="comp">
+                                <j:forEach items="${orderOfComps}" var="comp">
+                                    <j:set var="compLastDeployed" value="${it.getCompLastDeployed(envsHeader, comp)}"/>
                                     <div id="${comp}_History" style="display: inline-block; position: fixed; top: 100; bottom: 100; left: 0; right: 0; width: 900px; height: 600px; position:fixed; margin: auto; padding: 10px; background-color: #FEFEFE; border: 1px solid; border-color: #DDDDDD; box-shadow: 1px 2px 1px #AAAAAA; border-radius: 15px; display:none; overflow: auto; overflow-x:hidden;">
                                         <div align="right">
                                             <b onclick="javascript:hideAll()" style="cursor: pointer">[X]</b>
@@ -157,7 +163,7 @@
                                                 <th align="center">Env</th>
                                                 <th align="center">Build</th>
                                                 <th align="center">Status</th>
-                                                <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
+                                                <j:if test="${!compLastDeployed.get('packageName').equals('')}">
                                                     <th align="center">Package</th>
                                                 </j:if>
                                                 <th align="center">Time</th>
@@ -187,7 +193,7 @@
                                                             </j:default>
                                                         </j:switch>
                                                     </td>
-                                                    <j:if test="${!it.getCompLastDeployed(envsHeader, comp).get('packageName').equals('')}">
+                                                    <j:if test="${!compLastDeployed.get('packageName').equals('')}">
                                                         <td>
                                                             ${deployment.get('packageName')}
                                                         </td>
@@ -206,10 +212,10 @@
 
 
                     <!-- Main dashboard -->
-                    <j:forEach items="${it.getOrderOfComps()}" var="comps">
+                    <j:forEach items="${orderOfComps}" var="comps">
                         <tr>
                             <td align="center"><strong><a href="javascript:toggle('${comps}_History')">${comps}</a></strong></td>
-                            <j:forEach items="${it.getOrderOfEnvs()}" var="env">
+                            <j:forEach items="${orderOfEnvs}" var="env">
                                 <j:set var="deployment" value="${it.getCompLastDeployed(env, comps)}"/>
                                 <j:if test="${!deployment.isEmpty()}">
                                     <j:switch on="${deployment.get('buildstatus')}">
