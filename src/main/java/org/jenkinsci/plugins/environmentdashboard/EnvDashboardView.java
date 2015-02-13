@@ -78,6 +78,92 @@ public class EnvDashboardView extends View {
             load();
         }
 
+        public static ArrayList<String> getCustomColumns(){
+            Connection conn = null;
+            Statement stat = null;
+            ArrayList<String> columns;
+            columns = new ArrayList<String>();
+            String queryString="SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='ENV_DASHBOARD';";
+            String[] fields = {"envComp", "compName", "envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
+            boolean columnFound = false;
+            try {
+                ResultSet rs = null;
+                conn = DBConnection.getConnection();
+
+                try {
+                    assert conn != null;
+                    stat = conn.createStatement();
+                } catch (SQLException e) {
+                    System.out.println("E3" + e.getMessage());
+                }
+                try {
+                    assert stat != null;
+                    rs = stat.executeQuery(queryString);
+                } catch (SQLException e) {
+                    System.out.println("E4" + e.getMessage());
+                }
+                String col = "";
+                while (rs.next()) {
+                    columnFound=false;
+                    col = rs.getString("COLUMN_NAME");
+                    for (String presetColumn : fields){
+                        if (col.toLowerCase().equals(presetColumn.toLowerCase())){
+                            columnFound = true;
+                            break;
+                        }
+                    }
+                    if (!columnFound){
+                        columns.add(col.toLowerCase());
+                    }
+                }
+                DBConnection.closeConnection();
+            } catch (SQLException e) {
+                System.out.println("E11" + e.getMessage());
+                return null;
+            }
+            return columns;
+        }
+
+
+        public ListBoxModel doFillColumnItems() {
+            ListBoxModel m = new ListBoxModel();
+            ArrayList<String> columns = getCustomColumns();
+            int position = 0;
+            m.add("Select column to remove", "");
+            for (String col : columns){
+                m.add(col, col);
+            }
+            return m;
+        }
+
+        @SuppressWarnings("unused")
+        public FormValidation doDropColumn(@QueryParameter("column") final String column){
+            Connection conn = null;
+            Statement stat = null;
+            if ("".equals(column)){
+                return FormValidation.ok(); 
+            }
+            String queryString = "ALTER TABLE ENV_DASHBOARD DROP COLUMN " + column + ";";
+            //Get DB connection
+            conn = DBConnection.getConnection();
+
+            try {
+                assert conn != null;
+                stat = conn.createStatement();
+            } catch (SQLException e) {
+                return FormValidation.error("Failed to create statement."); 
+            }
+            try {
+                assert stat != null;
+                stat.execute(queryString);
+            } catch (SQLException e) {
+                DBConnection.closeConnection();
+                return FormValidation.error("Failed to remove column: " + column + "\nThis column may have already been removed. Refresh to update the list of columns to remove."); 
+            } 
+            DBConnection.closeConnection();
+
+            return FormValidation.ok("Successfully removed column " + column + ".");
+        }
 
         /**
          * get the display name
@@ -253,33 +339,7 @@ public class EnvDashboardView extends View {
     }
 
     public ArrayList<String> getCustomDBColumns(){
-        ArrayList<String> columns;
-        columns = new ArrayList<String>();
-        String queryString="SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS where TABLE_NAME='ENV_DASHBOARD';";
-        String[] fields = {"envComp", "compName", "envName", "buildstatus", "buildJobUrl", "jobUrl", "buildNum", "created_at", "packageName"};
-        boolean columnFound = false;
-            try {
-                ResultSet rs = runQuery(queryString);
-                String col = "";
-                while (rs.next()) {
-                    columnFound=false;
-                    col = rs.getString("COLUMN_NAME");
-                    for (String presetColumn : fields){
-                        if (col.toLowerCase().equals(presetColumn.toLowerCase())){
-                            columnFound = true;
-                            break;
-                        }
-                    }
-                    if (!columnFound){
-                        columns.add(col.toLowerCase());
-                    }
-                }
-                DBConnection.closeConnection();
-            } catch (SQLException e) {
-                System.out.println("E11" + e.getMessage());
-                return null;
-            }
-        return columns;
+        return DescriptorImpl.getCustomColumns();
     }
 
     public ArrayList<HashMap<String, String>> getDeploymentsByComp(String comp, Integer lastDeploy) {
